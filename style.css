@@ -200,3 +200,58 @@ h1 {
     transform: translateY(-10px);
     box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
 }
+
+/* Botones de estado */
+.status-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.status-button .label {
+    font-size: 0.8rem;
+    color: white;
+    margin-top: 5px;
+}
+
+.status-button.viewed {
+    background-color: green;
+}
+
+.status-button.not-viewed {
+    background-color: gray;
+}
+
+.status-button.caught {
+    background-color: red;
+}
+
+.status-button.not-caught {
+    background-color: gray;
+}
+
+.status-button.in-team {
+    background-color: blue;
+}
+
+.status-button.not-in-team {
+    background-color: gray;
+}
+
+.status-button:hover {
+    transform: scale(1.1);
+}
+
+.status-button:active {
+    transform: scale(1);
+}

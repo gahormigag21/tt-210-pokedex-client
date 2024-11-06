@@ -48,6 +48,72 @@ async function fetchPokemonData(pokemonId) {
     const pokemon = await response.json();
     return pokemon;
 }
+async function viewStatusPokemon(pokemon_id) {
+    try {
+        const response = await fetch("http://127.0.0.1:3000/api/pokemon/",{
+            method:"POST",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body: JSON.stringify({
+                pokemon_id:pokemon_id,
+                view:true,
+                catch:false,
+                in_team:false
+            })
+        })
+        console.log(response)
+        const pokemonView = await response.json()
+        return pokemonView
+    } catch (error) {
+        console.error(error)
+    }
+    
+}
+async function catchStatusPokemon(pokemon_id,viewStatus) {
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/api/pokemon/catch/${pokemon_id}`,{
+            method:"PUT",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body: JSON.stringify({
+                pokemon_id:pokemon_id,
+                view:viewStatus,
+                catch:false,
+                in_team:false
+            })
+        })
+        console.log(response)
+        const pokemonView = await response.json()
+        return pokemonView
+    } catch (error) {
+        console.error(error)
+    }
+    
+}
+async function inTeamStatusPokemon(pokemon_id,viewStatus,catchStatus,in_teamStatus) {
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/api/pokemon/inTeam/${pokemon_id}`,{
+            method:"PUT",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body: JSON.stringify({
+                pokemon_id:pokemon_id,
+                view:viewStatus,
+                catch:catchStatus,
+                in_team:in_teamStatus
+            })
+        })
+        console.log(response)
+        const pokemonView = await response.json()
+        return pokemonView
+    } catch (error) {
+        console.error(error)
+    }
+    
+}
 
 function getShinyChance() {
     return Math.random() < 0.3; // 30% de probabilidad de shiny
@@ -62,11 +128,14 @@ function displayPokemon(pokemon) {
 
     // Si es shiny, el color de fondo será dorado, si no, dependerá del tipo de Pokémon
     const bgColor = isShiny ? 'gold' : getTypeColor(pokemon.types);
+
+    // Aplicar un filtro al sprite si pokemon.view es false
+    const spriteStyle = pokemon.view ? '' : 'filter: grayscale(100%) brightness(0.4);';
     
     pokemonCard.style.backgroundColor = bgColor; // Aplica el color de fondo dinámicamente
 
     pokemonCard.innerHTML = `
-        <img src="${sprite}" alt="${pokemon.name}">
+        <img src="${sprite}" alt="${pokemon.name}"style="${spriteStyle}">
         <h3>${pokemon.name.toUpperCase()} ${isShiny ? "(Shiny)" : ""}</h3>
         <p>ID: ${pokemon.pokemon_id}</p>
     `;
@@ -82,21 +151,45 @@ backButton.addEventListener("click",()=>{
     pokemonList.style.display = "grid"
 })
 
-function showPokemonDetail(pokemon,isShiny,sprite) {
-    pokemonList.style.display = "none"
-    pokemonDetail.style.display= "block"
+function showPokemonDetail(pokemon, isShiny, sprite) {
+    pokemonList.style.display = "none";
+    pokemonDetail.style.display = "block";
     
-    pokemonInfo.innerHTML = `
+    // Aplicar un filtro al sprite si pokemon.view es false
+    const spriteStyle = pokemon.view ? '' : 'filter: grayscale(100%) brightness(0.4);';
 
-    <h2>${pokemon.name.toUpperCase()} ${isShiny ? "(Shiny)" : ""}</h2>
-    <img src="${sprite}" alt="${pokemon.name}">
-    <p>ID: ${pokemon.id}</p>
-    <p>Altura: ${pokemon.height / 10} m</p>
-    <p>Peso: ${pokemon.weight / 10} kg</p>
-    <p>Tipos: ${pokemon.types}</p>
-    `
-    return
+    // Actualizar el contenido de pokemonInfo
+    pokemonInfo.innerHTML = `
+        <h2>${pokemon.name.toUpperCase()} ${isShiny ? "(Shiny)" : ""}</h2>
+        <img src="${sprite}" alt="${pokemon.name}" style="${spriteStyle}">
+        <p>ID: ${pokemon.pokemon_id}</p>
+        <p>Altura: ${pokemon.height / 10} m</p>
+        <p>Peso: ${pokemon.weight / 10} kg</p>
+        <p>Tipos: ${pokemon.types}</p>
+    `;
+
+    // Crear botones de estado con estilos
+    const viewStatusButton = document.createElement("button");
+    viewStatusButton.innerHTML = `<span class="icon">👁️</span><span class="label">Visto</span>`;
+    viewStatusButton.className = pokemon.view ? "status-button viewed" : "status-button not-viewed";
+    viewStatusButton.addEventListener("click", () => viewStatusPokemon(pokemon.pokemon_id));
+    pokemonInfo.appendChild(viewStatusButton);
+
+    const catchStatusButton = document.createElement("button");
+    catchStatusButton.innerHTML = `<span class="icon">🟠</span><span class="label">Capturado</span>`;
+    catchStatusButton.className = pokemon.catch ? "status-button caught" : "status-button not-caught";
+    catchStatusButton.addEventListener("click", () => catchStatusPokemon(pokemon.pokemon_id, pokemon.view));
+    pokemonInfo.appendChild(catchStatusButton);
+
+    const inTeamStatusButton = document.createElement("button");
+    inTeamStatusButton.innerHTML = `<span class="icon">🔵</span><span class="label">En Equipo</span>`;
+    inTeamStatusButton.className = pokemon.inTeam ? "status-button in-team" : "status-button not-in-team";
+    inTeamStatusButton.addEventListener("click", () => inTeamStatusPokemon(pokemon.pokemon_id, pokemon.view, pokemon.catch, pokemon.inTeam));
+    pokemonInfo.appendChild(inTeamStatusButton);
+
+    return;
 }
+
 
 async function loadPokedex(page) {
     pokemonList.innerHTML=""
